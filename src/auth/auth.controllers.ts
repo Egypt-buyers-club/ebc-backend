@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { User } from "./users.types";
+import { User } from "./auth.types";
 
 export const registerController: RequestHandler = (req, res, next) => {
   const newUser = req.body as User;

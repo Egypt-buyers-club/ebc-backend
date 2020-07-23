@@ -1,12 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 
-const errorMiddleware = (
+export const errorMiddleware = (
   err: Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  res.status(500).json({ error: err.message });
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status((err as any).code || 500);
+  res.json({ error: err.message || "An Error Occured, please try again." });
 };
-
-export default errorMiddleware;
