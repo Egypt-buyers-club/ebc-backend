@@ -1,8 +1,8 @@
 import { RequestHandler } from "express";
-import { User } from "./auth.types";
+import { RegisterCredentials } from "./auth.types";
 
 export const registerController: RequestHandler = (req, res, next) => {
-  const newUser = req.body as User;
+  const newUser = req.body as RegisterCredentials;
   console.log(newUser);
   res.status(201).json({ user: newUser });
 };
