@@ -12,7 +12,7 @@ import { connectToDatabase } from "./database.config";
 import { errorMiddleware, notFoundMiddleware } from "./app.middlewares";
 
 // import routes
-import authRoutes from "../auth/auth";
+import { authRoutes } from "../auth/auth";
 
 // init app
 const app = express();
