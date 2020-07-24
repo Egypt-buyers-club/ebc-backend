@@ -140,7 +140,7 @@ export const loginController: RequestHandler = async (req, res, next) => {
 export const fetchUsersController: RequestHandler = async (req, res, next) => {
 	let users;
 	try {
-		users = await UserModel.find({}, "-password");
+		users = await UserModel.find({ activated: true }, "-password");
 	} catch (err) {
 		return next(new HttpError("Operation Failed, Try again later", 500));
 	}
