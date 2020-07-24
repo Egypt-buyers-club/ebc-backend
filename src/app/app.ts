@@ -13,6 +13,7 @@ import { errorMiddleware, notFoundMiddleware } from "./app.middlewares";
 
 // import routes
 import { authRoutes } from "../auth/auth";
+import { tokenRoutes } from "../token/token";
 
 // init app
 const app = express();
@@ -26,6 +27,7 @@ app.use(express.json());
 
 // use routes
 app.use("/api/auth/", authRoutes);
+app.use("/api/token/", tokenRoutes);
 
 // handle not found pages
 app.use(notFoundMiddleware);

@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 
 import { HttpError } from "../app/app.models";
 
@@ -8,6 +9,8 @@ import { UserModel } from "./auth.models";
 
 import { RegisterCredentials, LoginCredentials } from "./auth.types";
 import { registerSchema, loginSchema } from "./auth.validators";
+import { TokenModel } from "../token/token.models";
+import { generateVerificationCode } from "../token/token.utils";
 
 export const registerController: RequestHandler = async (req, res, next) => {
 	// Validate Request Body
@@ -40,6 +43,44 @@ export const registerController: RequestHandler = async (req, res, next) => {
 		password: hashedPassword
 	});
 
+	// Create a verification token for this user
+	const emailToken = new TokenModel({
+		_userId: newUser._id,
+		token: generateVerificationCode()
+	});
+
+	// save token
+	try {
+		await emailToken.save();
+	} catch (error) {
+		return next(new HttpError("Operation Failed, Try again later", 500));
+	}
+
+	// Send Email
+	const transporter = nodemailer.createTransport({
+		service: "gmail",
+		host: "smtp.gmail.com",
+		port: 587,
+		secure: false,
+		auth: {
+			user: process.env.GMAIL_EMAIL,
+			pass: process.env.GMAIL_PASSWORD
+		}
+	});
+	const mailOptions = {
+		from: process.env.GMAIL_EMAIL,
+		to: (newUser as any).email,
+		subject: "Account Verification Token",
+		text: `Your Verification Code is: ${(emailToken as any).token}`
+	};
+
+	try {
+		const info = await transporter.sendMail(mailOptions);
+		console.log(info.messageId);
+	} catch (error) {
+		return next(new HttpError("Operation Failed, Try again later", 500));
+	}
+
 	// Save user
 	let savedUser;
 	try {
@@ -48,17 +89,10 @@ export const registerController: RequestHandler = async (req, res, next) => {
 		return next(new HttpError("Operation Failed, Try again later", 500));
 	}
 
-	// create jwt
-	let token;
-	try {
-		token = jwt.sign({ userId: savedUser.id }, process.env.JWT_SECRET!, {
-			expiresIn: "2h"
-		});
-	} catch (error) {
-		return next(new HttpError("Operation Failed, Try again later", 500));
-	}
-
-	return res.status(201).json({ token: token });
+	return res.status(201).json({
+		id: (savedUser as any).id,
+		activated: (savedUser as any).activated
+	});
 };
 
 export const loginController: RequestHandler = async (req, res, next) => {
@@ -87,6 +121,9 @@ export const loginController: RequestHandler = async (req, res, next) => {
 	if (!isValidPassword)
 		return next(new HttpError("Wrong Email or password.", 401));
 
+	if (!user.activated) {
+		return res.status(200).json({ id: user.id, activated: user.activated });
+	}
 	// create jwt
 	let token;
 	try {
@@ -97,7 +134,7 @@ export const loginController: RequestHandler = async (req, res, next) => {
 		return next(new HttpError("Operation Failed, Try again later", 500));
 	}
 
-	return res.status(200).json({ token: token });
+	return res.status(200).json({ token: token, activated: user.activated });
 };
 
 export const fetchUsersController: RequestHandler = async (req, res, next) => {
