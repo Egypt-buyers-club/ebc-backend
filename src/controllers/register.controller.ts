@@ -1,14 +1,14 @@
 import { RequestHandler } from "express";
 import bcrypt from "bcryptjs";
-import nodemailer from "nodemailer";
 
 import { HttpError } from "../models/error.model";
-
 import { UserModel } from "../models/auth.model";
+import { TokenModel } from "../models/token.model";
+
+import { sendMail } from "../services/mail.service";
 
 import { RegisterCredentials } from "../types/auth.type";
 import { registerSchema } from "../validators/auth.validator";
-import { TokenModel } from "../models/token.model";
 import { generateVerificationCode } from "../utils";
 
 export const registerController: RequestHandler = async (req, res, next) => {
@@ -55,26 +55,12 @@ export const registerController: RequestHandler = async (req, res, next) => {
 		return next(new HttpError("Operation Failed, Try again later", 500));
 	}
 
-	// Send Email
-	const transporter = nodemailer.createTransport({
-		service: "gmail",
-		host: "smtp.gmail.com",
-		port: 587,
-		secure: false,
-		auth: {
-			user: process.env.GMAIL_EMAIL,
-			pass: process.env.GMAIL_PASSWORD
-		}
-	});
-	const mailOptions = {
-		from: process.env.GMAIL_EMAIL,
-		to: (newUser as any).email,
-		subject: "Account Verification Token",
-		text: `Your Verification Code is: ${(emailToken as any).token}`
-	};
-
+	const [transporter, mailOptions] = sendMail(
+		(newUser as any).email,
+		(emailToken as any).token
+	);
 	try {
-		const info = await transporter.sendMail(mailOptions);
+		const info = await (transporter as any).sendMail(mailOptions);
 		console.log(info.messageId);
 	} catch (error) {
 		return next(new HttpError("Operation Failed, Try again later", 500));
