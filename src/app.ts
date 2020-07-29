@@ -1,5 +1,6 @@
 // import libs
 import express, { Request, Response } from "express";
+import cors from "cors";
 import { config as dotenv } from "dotenv";
 
 // init dotenv
@@ -20,6 +21,9 @@ import { tokenRoutes } from "./routes/token.route";
 
 // init app
 const app = express();
+
+// use cors
+app.use(cors());
 
 // connect to DB
 connectToDatabase();
