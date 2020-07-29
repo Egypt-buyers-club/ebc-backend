@@ -1,10 +1,10 @@
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-import { HttpError } from "../app/app.models";
-import { UserModel } from "../auth/auth.models";
-import { TokenModel } from "./token.models";
+import { HttpError } from "../models/error.model";
+import { UserModel } from "../models/auth.model";
+import { TokenModel } from "../models/token.model";
 
-import { tokenSchema } from "./token.validators";
+import { tokenSchema } from "../validators/token.validator";
 
 export const tokenController: RequestHandler = async (req, res, next) => {
 	// validate errors

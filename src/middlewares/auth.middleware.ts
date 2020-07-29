@@ -1,8 +1,7 @@
-import { any } from "@hapi/joi";
-import { Response, NextFunction, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-import { HttpError } from "../app/app.models";
-import { IGetUserAuthInfoRequest } from "./auth.types";
+import { HttpError } from "../models/error.model";
+import { IGetUserAuthInfoRequest } from "../types/auth.type";
 
 export const checkAuth: RequestHandler = (req, res, next) => {
 	try {

@@ -3,14 +3,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 
-import { HttpError } from "../app/app.models";
+import { HttpError } from "../models/error.model";
 
-import { UserModel } from "./auth.models";
+import { UserModel } from "../models/auth.model";
 
-import { RegisterCredentials, LoginCredentials } from "./auth.types";
-import { registerSchema, loginSchema } from "./auth.validators";
-import { TokenModel } from "../token/token.models";
-import { generateVerificationCode } from "../token/token.utils";
+import { RegisterCredentials } from "../types/auth.type";
+import { registerSchema, loginSchema } from "../validators/auth.validator";
+import { TokenModel } from "../models/token.model";
+import { generateVerificationCode } from "../utils";
 
 export const registerController: RequestHandler = async (req, res, next) => {
 	// Validate Request Body

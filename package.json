@@ -2,7 +2,7 @@
 	"name": "ebc-backend",
 	"version": "0.1.0",
 	"description": "The backend for the E-commerce site Egypt buyers club!",
-	"main": "dist/app/app.js",
+	"main": "dist/app.js",
 	"scripts": {
 		"start": "node .",
 		"server": "nodemon .",

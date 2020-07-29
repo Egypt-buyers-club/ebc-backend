@@ -1,19 +1,22 @@
 // import libs
-import express from "express";
+import express, { Request, Response } from "express";
 import { config as dotenv } from "dotenv";
 
 // init dotenv
 dotenv();
 
 // import database connection
-import { connectToDatabase } from "./database.config";
+import { connectToDatabase } from "./config/database.config";
 
 // import middlewares
-import { errorMiddleware, notFoundMiddleware } from "./app.middlewares";
+import {
+	errorMiddleware,
+	notFoundMiddleware
+} from "./middlewares/error.middleware";
 
 // import routes
-import { authRoutes } from "../auth/auth";
-import { tokenRoutes } from "../token/token";
+import { authRoutes } from "./routes/auth.route";
+import { tokenRoutes } from "./routes/token.route";
 
 // init app
 const app = express();
@@ -28,6 +31,12 @@ app.use(express.json());
 // use routes
 app.use("/api/auth/", authRoutes);
 app.use("/api/token/", tokenRoutes);
+
+// serve docs
+app.use(express.static(__dirname + "/docs/"));
+app.get("/", (req: Request, res: Response) => {
+	res.status(200).sendFile(__dirname + "/docs/index.html");
+});
 
 // handle not found pages
 app.use(notFoundMiddleware);
